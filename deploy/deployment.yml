@@ -27,8 +27,8 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: Some_Variable
-              value: "SomeValue"
+            - name: IngressOptions__Uri
+              value: "https://cherry.null.care/api"
 ---
 
 apiVersion: v1
