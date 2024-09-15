@@ -1,0 +1,83 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: cherry-api
+  name: cherry-api
+spec:
+  selector:
+    matchLabels:
+      app: cherry-api
+  replicas: 2
+  template:
+    metadata:
+      labels:
+        app: cherry-api
+        name: cherry-api
+    spec:
+      containers:
+        - name: cherry-api
+          image: "uherman/cherry-api:latest"
+          imagePullPolicy: Always
+          resources:
+            requests:
+              memory: "256Mi"
+            limits:
+              memory: "256Mi"
+          ports:
+            - containerPort: 5000
+          env:
+            - name: Some_Variable
+              value: "SomeValue"
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: cherry-api
+  name: cherry-api
+spec:
+  selector:
+    app: cherry-api
+  ports:
+    - port: 5000
+      name: http
+      protocol: TCP
+  type: ClusterIP
+---
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: cherry-api
+  annotations:
+    cert-manager.io/cluster-issuer: letsencrypt-production
+    kubernetes.io/ingress.class: traefik
+spec:
+  tls:
+    - hosts:
+        - cherry.null.care
+        - www.cherry.null.care
+      secretName: cherry-api-tls
+  rules:
+    - host: cherry.null.care
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cherry-api
+                port:
+                  number: 5000
+    - host: www.cherry.null.care
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: cherry-api
+                port:
+                  number: 5000
