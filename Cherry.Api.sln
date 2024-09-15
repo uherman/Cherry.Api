@@ -10,6 +10,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driven", "src\Driven\Driven
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Driving", "src\Driving\Driving.csproj", "{1CDC034D-5181-4F66-B143-FB382E26B0A3}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "proxy", "proxy", "{EFB30CE5-EC65-4FF7-AC9A-EFE15242C4A4}"
+	ProjectSection(SolutionItems) = preProject
+		proxy\deployment.yaml = proxy\deployment.yml
+		proxy\Dockerfile = proxy\Dockerfile
+		proxy\deploy.sh = proxy\deploy.sh
+	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Proxy", "proxy\Proxy\Proxy.csproj", "{9EEA2BF0-4C16-4556-8392-E130FE322C27}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +29,7 @@ Global
 		{14484B81-193B-443C-B014-928C2E744353} = {404FA209-4455-4CB1-8BBA-2014CCCDC2FA}
 		{D6061324-499D-4F7B-9B55-BCFBDBD1C8BF} = {404FA209-4455-4CB1-8BBA-2014CCCDC2FA}
 		{1CDC034D-5181-4F66-B143-FB382E26B0A3} = {404FA209-4455-4CB1-8BBA-2014CCCDC2FA}
+		{9EEA2BF0-4C16-4556-8392-E130FE322C27} = {EFB30CE5-EC65-4FF7-AC9A-EFE15242C4A4}
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
 		{60E9B3CF-BC72-4373-B838-C7C02DD7A50D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
@@ -38,5 +48,9 @@ Global
 		{1CDC034D-5181-4F66-B143-FB382E26B0A3}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1CDC034D-5181-4F66-B143-FB382E26B0A3}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1CDC034D-5181-4F66-B143-FB382E26B0A3}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9EEA2BF0-4C16-4556-8392-E130FE322C27}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9EEA2BF0-4C16-4556-8392-E130FE322C27}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9EEA2BF0-4C16-4556-8392-E130FE322C27}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9EEA2BF0-4C16-4556-8392-E130FE322C27}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
