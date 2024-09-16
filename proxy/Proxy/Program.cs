@@ -1,13 +1,26 @@
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Proxy;
+using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+var redisOptions = builder.Configuration.GetSection(RedisOptions.Section).Get<RedisOptions>();
+var redis = ConnectionMultiplexer.Connect(new ConfigurationOptions
+{
+    EndPoints = { redisOptions.ConnectionString },
+    DefaultDatabase = redisOptions.DefaultDatabase
+});
+
+builder.Services.AddDataProtection()
+    .SetApplicationName("Cherry.Proxy")
+    .PersistKeysToStackExchangeRedis(redis, redisOptions.DataProtectionKey);
 
 var authOptions = builder.Configuration.GetSection(Auth0Options.Section).Get<Auth0Options>();
 builder.Services.AddAuth0WebAppAuthentication(options =>
@@ -18,9 +31,10 @@ builder.Services.AddAuth0WebAppAuthentication(options =>
 
 var app = builder.Build();
 
+app.UseHsts();
+app.UseHttpsRedirection();
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseHttpsRedirection();
 app.MapReverseProxy();
 
 // TODO: Remove this when FE is deployed
@@ -41,6 +55,7 @@ app.MapGet("Account/Login", (HttpContext context, [FromQuery] string returnUrl =
         .WithRedirectUri(returnUrl)
         .Build();
 
+    context.Request.IsHttps = true;
     return context.ChallengeAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
 });
 
@@ -50,6 +65,7 @@ app.MapGet("Account/Logout", async context =>
         .WithRedirectUri("/")
         .Build();
 
+    context.Request.IsHttps = true;
     await context.SignOutAsync(Auth0Constants.AuthenticationScheme, authenticationProperties);
     await context.SignOutAsync(CookieAuthenticationDefaults.AuthenticationScheme);
 });

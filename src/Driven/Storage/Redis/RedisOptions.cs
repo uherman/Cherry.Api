@@ -1,7 +1,6 @@
 namespace Driven.Storage.Redis;
 
-public record RedisOptions
+public record RedisOptions(string ConnectionString)
 {
     public const string Section = "RedisOptions";
-    public string ConnectionString { get; init; }
 }

@@ -1,6 +1,6 @@
 # Description: Build and push the docker image and deploy the proxy service to the k3s cluster
 
-dotnet publish -c Release
+dotnet publish Proxy/Proxy.csproj -c Release
 
 # Build and push the docker image
 docker build . -t uherman/cherry-proxy

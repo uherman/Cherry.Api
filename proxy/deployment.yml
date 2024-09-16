@@ -31,6 +31,12 @@ spec:
               value: ${Auth0__Domain}
             - name: Auth0__ClientId
               value: ${Auth0__ClientId}
+            - name: RedisOptions__ConnectionString
+              value: ${RedisOptions__ConnectionString}
+            - name: RedisOptions__DataProtectionKey
+              value: ${RedisOptions__DataProtectionKey}
+            - name: RedisOptions__DefaultDatabase
+              value: "${RedisOptions__DefaultDatabase}"
 ---
 
 apiVersion: v1

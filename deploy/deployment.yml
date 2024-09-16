@@ -30,7 +30,7 @@ spec:
             - name: IngressOptions__Uri
               value: "https://cherry.null.care/api"
             - name: RedisOptions__ConnectionString
-              value: "redis-stack"
+              value: ${RedisOptions__ConnectionString}
 ---
 
 apiVersion: v1
