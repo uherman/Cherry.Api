@@ -25,7 +25,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
 
-// TODO: Add route to get id_token
+app.MapGet("Account/Profile", (HttpContext context) =>
+{
+    if (context.User.Identity?.IsAuthenticated is not true)
+    {
+        return Results.Unauthorized();
+    }
+
+    return Results.Json(new
+    {
+        context.User.Identity?.Name,
+        context.User.Identity?.AuthenticationType,
+        context.User.Identity?.IsAuthenticated,
+        Claims = context.User.Claims.Select(c => new { c.Type, c.Value })
+    });
+}).RequireAuthorization();
 
 app.MapGet("Account/Login", (HttpContext context, [FromQuery] string returnUrl = "/") =>
 {
