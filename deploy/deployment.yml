@@ -29,6 +29,8 @@ spec:
           env:
             - name: IngressOptions__Uri
               value: "https://cherry.null.care/api"
+            - name: RedisOptions__ConnectionString
+              value: "redis-stack"
 ---
 
 apiVersion: v1
