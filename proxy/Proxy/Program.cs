@@ -39,7 +39,7 @@ app.MapGet("Account/Profile", (HttpContext context) =>
         context.User.Identity?.IsAuthenticated,
         Claims = context.User.Claims.Select(c => new { c.Type, c.Value })
     });
-}).RequireAuthorization();
+});
 
 app.MapGet("Account/Login", (HttpContext context, [FromQuery] string returnUrl = "/") =>
 {
