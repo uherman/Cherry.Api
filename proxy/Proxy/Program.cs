@@ -4,30 +4,18 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Proxy;
-using StackExchange.Redis;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-var redisOptions = builder.Configuration.GetSection(RedisOptions.Section).Get<RedisOptions>();
-var redis = ConnectionMultiplexer.Connect(new ConfigurationOptions
-{
-    EndPoints = { redisOptions.ConnectionString },
-    DefaultDatabase = redisOptions.DefaultDatabase
-});
-
+var (redis, key) = RedisOptions.GetConnectionMultiplexer(builder.Configuration);
 builder.Services.AddDataProtection()
     .SetApplicationName("Cherry.Proxy")
-    .PersistKeysToStackExchangeRedis(redis, redisOptions.DataProtectionKey);
+    .PersistKeysToStackExchangeRedis(redis, key);
 
-var authOptions = builder.Configuration.GetSection(Auth0Options.Section).Get<Auth0Options>();
-builder.Services.AddAuth0WebAppAuthentication(options =>
-{
-    options.Domain = authOptions.Domain;
-    options.ClientId = authOptions.ClientId;
-});
+builder.Services.AddAuth0WebAppAuthentication(Auth0Options.Configure(builder.Configuration));
 
 var app = builder.Build();
 
