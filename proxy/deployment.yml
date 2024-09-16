@@ -27,8 +27,10 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: Some_Variable
-              value: "SomeValue"
+            - name: Auth0__Domain
+              value: ${Auth0__Domain}
+            - name: Auth0__ClientId
+              value: ${Auth0__ClientId}
 ---
 
 apiVersion: v1
