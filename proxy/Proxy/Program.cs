@@ -25,17 +25,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
 
-// TODO: Remove this when FE is deployed
-app.MapGet("/", () =>
-{
-    app.Logger.LogInformation("GET / {Timestamp} ", DateTimeOffset.UtcNow);
-
-    return Results.Json(new
-    {
-        Message = "Cherry reverse proxy is running",
-        Timestamp = DateTimeOffset.UtcNow
-    });
-});
+// TODO: Add route to get id_token
 
 app.MapGet("Account/Login", (HttpContext context, [FromQuery] string returnUrl = "/") =>
 {
