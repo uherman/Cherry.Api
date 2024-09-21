@@ -17,16 +17,16 @@ public class RedisClient(IConnectionMultiplexer connectionMultiplexer) : IRedisC
     };
 
     // <inheritdoc />
-    public async Task<T> Get<T>(string key) where T : class, new()
+    public async Task<T> Get<T>(string key) where T : class
     {
         var response = await _database.StringGetAsync(key);
         return response.HasValue ? JsonSerializer.Deserialize<T>(response, JsonSerializerOptions) : default;
     }
 
     // <inheritdoc />
-    public async Task Set<T>(string key, T value) where T : class, new()
+    public async Task Set<T>(string key, T value, TimeSpan? expiry = null) where T : class
     {
-        await _database.StringSetAsync(key, JsonSerializer.Serialize(value, JsonSerializerOptions));
+        await _database.StringSetAsync(key, JsonSerializer.Serialize(value, JsonSerializerOptions), expiry);
     }
 
     // <inheritdoc />
@@ -36,9 +36,9 @@ public class RedisClient(IConnectionMultiplexer connectionMultiplexer) : IRedisC
     }
 
     // <inheritdoc />
-    public async Task SetString(string key, string value)
+    public async Task SetString(string key, string value, TimeSpan? expiry = null)
     {
-        await _database.StringSetAsync(key, value);
+        await _database.StringSetAsync(key, value, expiry);
     }
 
     // <inheritdoc />
