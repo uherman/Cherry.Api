@@ -16,7 +16,8 @@ builder.Services.AddDataProtection()
     .SetApplicationName("Cherry.Proxy")
     .PersistKeysToStackExchangeRedis(redis, key);
 
-builder.Services.AddAuth0WebAppAuthentication(Auth0Options.Configure(builder.Configuration));
+builder.Services.AddAuth0WebAppAuthentication(Auth0Options.Configure(builder.Configuration))
+    .WithAccessToken(Auth0Options.ConfigureAccessToken(builder.Configuration));
 
 var app = builder.Build();
 
@@ -26,7 +27,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
 
-app.MapGet("Account/Profile", (HttpContext context) =>
+app.MapGet("Account/Profile",  (HttpContext context) =>
 {
     if (context.User.Identity?.IsAuthenticated is not true)
     {

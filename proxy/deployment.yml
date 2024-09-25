@@ -27,8 +27,12 @@ spec:
           ports:
             - containerPort: 5000
           env:
-            - name: Auth0__Authority
-              value: ${Auth0__Authority}
+            - name: Auth0__Domain
+              value: ${Auth0__Domain}
+            - name: Auth0__ClientId
+              value: ${Auth0__ClientId}
+            - name: Auth0__ClientSecret
+              value: ${Auth0__ClientSecret}
             - name: Auth0__Audience
               value: ${Auth0__Audience}
             - name: RedisOptions__ConnectionString
