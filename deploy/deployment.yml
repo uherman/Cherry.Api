@@ -27,6 +27,10 @@ spec:
           ports:
             - containerPort: 5000
           env:
+            - name: Auth0__Domain
+              value: ${Auth0__Domain}
+            - name: Auth0__ClientId
+              value: ${Auth0__ClientId}
             - name: IngressOptions__Uri
               value: "https://cherry.null.care/api"
             - name: RedisOptions__ConnectionString
