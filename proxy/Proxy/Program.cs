@@ -27,7 +27,21 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
 
-app.MapGet("Account/Profile",  (HttpContext context) =>
+app.Use(async (context, next) =>
+{
+    if (context.Request.Path.StartsWithSegments("/api"))
+    {
+        var accessToken = await context.GetTokenAsync("access_token");
+        if (accessToken is not null)
+        {
+            context.Request.Headers.Authorization = $"Bearer {accessToken}";
+        }
+    }
+
+    await next();
+});
+
+app.MapGet("Account/Profile", (HttpContext context) =>
 {
     if (context.User.Identity?.IsAuthenticated is not true)
     {
