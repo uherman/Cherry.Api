@@ -2,6 +2,7 @@ using Domain;
 using Driven;
 using Driving;
 using Host;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,12 @@ const string swaggerTitle = "Cherry API";
 const string swaggerEndpoint = "/swagger/v1/swagger.json";
 
 var ingressOptions = builder.Configuration.GetSection(IngressOptions.Section).Get<IngressOptions>();
+
+builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+    .AddJwtBearer(Auth0Options.Configure(builder.Configuration));
+
+builder.Services.AddAuthorizationBuilder()
+    .AddDefaultPolicy("Default", policy => policy.RequireAuthenticatedUser());
 
 builder.Services.AddDriving(builder.Configuration);
 builder.Services.AddDriven(builder.Configuration);
@@ -20,7 +27,7 @@ builder.Services.AddSwaggerGen(options =>
 
 var app = builder.Build();
 
-if (builder.Environment.IsDevelopment())
+if (builder.Environment.IsEnvironment("NoProxy"))
 {
     app.UseDeveloperExceptionPage();
 
@@ -39,6 +46,8 @@ else
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
+app.UseAuthorization();
 app.MapControllers();
 
 app.MapGet("/", () => "Hello World!");

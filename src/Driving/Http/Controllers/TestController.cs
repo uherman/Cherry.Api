@@ -1,8 +1,10 @@
 using Domain.Ports.Driven;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Driving.Http.Controllers;
 
+[Authorize]
 [ApiController]
 [Route("[controller]/{key}")]
 public class TestController(IRedisClient client) : ControllerBase
