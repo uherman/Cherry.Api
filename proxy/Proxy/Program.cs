@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
@@ -34,10 +35,9 @@ app.MapGet("Account/Profile", (HttpContext context) =>
 
     return Results.Json(new
     {
-        context.User.Identity?.Name,
-        context.User.Identity?.AuthenticationType,
-        context.User.Identity?.IsAuthenticated,
-        Claims = context.User.Claims.Select(c => new { c.Type, c.Value })
+        Id = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
+        context.User.Identity.Name,
+        context.User.Identity?.IsAuthenticated
     });
 });
 
