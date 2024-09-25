@@ -14,6 +14,17 @@ public interface IRedisClient
     Task<T> Get<T>(string key) where T : class;
 
     /// <summary>
+    /// Retrieves a collection of objects of type T from Redis that match the specified pattern.
+    /// </summary>
+    /// <typeparam name="T">The type of the objects to retrieve.</typeparam>
+    /// <param name="pattern">The pattern to match the keys of the objects to retrieve.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains a read-only collection of objects of type
+    /// T.
+    /// </returns>
+    Task<IReadOnlyCollection<T>> GetByPattern<T>(string pattern) where T : class;
+
+    /// <summary>
     /// Stores an object of type T in Redis with the specified key.
     /// </summary>
     /// <typeparam name="T">The type of the object to store.</typeparam>
@@ -36,7 +47,6 @@ public interface IRedisClient
     /// <param name="key">The key of the string to store.</param>
     /// <param name="value">The string to store.</param>
     /// <param name="expiry">The expiration time for the string.</param>
-
     /// <returns>A task that represents the asynchronous operation.</returns>
     Task SetString(string key, string value, TimeSpan? expiry = null);
 

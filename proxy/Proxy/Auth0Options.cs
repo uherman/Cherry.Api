@@ -44,6 +44,7 @@ public record Auth0Options(string Domain, string ClientId, string ClientSecret, 
         {
             options.Audience = auth0Options.Audience;
             options.UseRefreshTokens = true;
+            options.Scope = "openid profile email";
         };
     }
 }
