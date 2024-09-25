@@ -2,6 +2,7 @@ using Domain;
 using Driven;
 using Driving;
 using Host;
+using Host.Configuration;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.OpenApi.Models;
 
@@ -22,8 +23,7 @@ builder.Services.AddDriving(builder.Configuration);
 builder.Services.AddDriven(builder.Configuration);
 builder.Services.AddDomain(builder.Configuration);
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen(options =>
-    options.SwaggerDoc("v1", new OpenApiInfo { Title = "Cherry API", Version = "v1" }));
+builder.Services.AddSwagger();
 
 var app = builder.Build();
 
