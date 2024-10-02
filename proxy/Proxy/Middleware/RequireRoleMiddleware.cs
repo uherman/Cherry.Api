@@ -1,7 +1,6 @@
-using System.Security.Claims;
 using Microsoft.AspNetCore.Authentication;
+using Proxy.Extensions;
 using Proxy.Models;
-using Proxy.Services;
 
 namespace Proxy.Middleware;
 
@@ -29,12 +28,14 @@ public static class RequireRoleMiddleware
     /// <param name="role">The required role.</param>
     /// <param name="options">Optional route protection options.</param>
     /// <returns>The application builder with the middleware added.</returns>
-    public static IApplicationBuilder UseProtectedRoute(this IApplicationBuilder app, string route, Role role,
+    public static IApplicationBuilder UseProtectedRoute(this WebApplication app, string route, Role role,
         RouteProtectionOptions options = null)
     {
         options ??= new RouteProtectionOptions();
         ArgumentNullException.ThrowIfNull(route);
         ArgumentNullException.ThrowIfNull(role);
+        var logger = app.Services.GetRequiredService<ILoggerFactory>().CreateLogger($"RouteProtection({route}:{role})");
+
 
         return app.Use(async (context, next) =>
         {
@@ -44,24 +45,11 @@ public static class RequireRoleMiddleware
                 return;
             }
 
-            var userService = context.RequestServices.GetRequiredService<UserService>();
-            if (context.User.Identity?.IsAuthenticated is not true)
+            var result = await context.UserIsInRole(role);
+            if (!result.IsInRole)
             {
-                context.Response.StatusCode = 401;
-                return;
-            }
-
-            var id = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (id is null)
-            {
-                context.Response.StatusCode = 401;
-                return;
-            }
-
-            var isInRole = await userService.IsInRole(id, role);
-            if (!isInRole)
-            {
-                context.Response.StatusCode = 403;
+                logger.LogInformation("{Message}", result);
+                context.Response.StatusCode = result.StatusCode;
                 return;
             }
 
@@ -73,6 +61,8 @@ public static class RequireRoleMiddleware
                     context.Request.Headers.Authorization = $"Bearer {accessToken}";
                 }
             }
+
+            logger.LogInformation("{Message}", result);
 
             await next();
         });
@@ -90,23 +80,18 @@ public static class RequireRoleMiddleware
     {
         return builder.AddEndpointFilter(async (context, next) =>
         {
-            var userService = context.HttpContext.RequestServices.GetRequiredService<UserService>();
-            if (context.HttpContext.User.Identity?.IsAuthenticated is not true)
+            var route = context.HttpContext.Request.Path.Value;
+            var logger = context.HttpContext.RequestServices.GetRequiredService<ILoggerFactory>()
+                .CreateLogger($"RouteProtection({route}:{role})");
+
+            var result = await context.HttpContext.UserIsInRole(role);
+            if (!result.IsInRole)
             {
-                return Results.Unauthorized();
+                logger.LogInformation("{Message}", result);
+                return Results.StatusCode(result.StatusCode);
             }
 
-            var id = context.HttpContext.User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-            if (id is null)
-            {
-                return Results.Unauthorized();
-            }
-
-            var isInRole = await userService.IsInRole(id, role);
-            if (!isInRole)
-            {
-                return Results.Forbid();
-            }
+            logger.LogInformation("{Message}", result);
 
             return await next(context);
         });

@@ -64,11 +64,8 @@ public readonly record struct UserId
     /// <summary>
     /// Returns the string representation of the user identifier.
     /// </summary>
-    /// <example>
-    /// user:123
-    /// </example>
     public override string ToString()
     {
-        return _value.ToString();
+        return _value.Id;
     }
 }
