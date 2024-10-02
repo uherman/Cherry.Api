@@ -5,11 +5,17 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Proxy;
+using Proxy.Middleware;
+using Proxy.Models;
+using Proxy.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
+
+builder.Services.AddSurreal(builder.Configuration.GetConnectionString("SurrealDB")!);
+builder.Services.AddSingleton<UserService>();
 
 var (redis, key) = RedisOptions.GetConnectionMultiplexer(builder.Configuration);
 builder.Services.AddDataProtection()
@@ -27,19 +33,7 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.MapReverseProxy();
 
-app.Use(async (context, next) =>
-{
-    if (context.Request.Path.StartsWithSegments("/api"))
-    {
-        var accessToken = await context.GetTokenAsync("access_token");
-        if (accessToken is not null)
-        {
-            context.Request.Headers.Authorization = $"Bearer {accessToken}";
-        }
-    }
-
-    await next();
-});
+app.UseProtectedRoute("/api", Role.Admin, new RouteProtectionOptions { IncludeToken = true });
 
 app.MapGet("Account/Profile", (HttpContext context) =>
 {
