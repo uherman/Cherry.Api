@@ -60,4 +60,15 @@ public readonly record struct UserId
     /// </summary>
     /// <param name="id">The <see cref="Thing" /> value of the user identifier.</param>
     public static implicit operator UserId(Thing id) => new(id.Id);
+
+    /// <summary>
+    /// Returns the string representation of the user identifier.
+    /// </summary>
+    /// <example>
+    /// user:123
+    /// </example>
+    public override string ToString()
+    {
+        return _value.ToString();
+    }
 }
