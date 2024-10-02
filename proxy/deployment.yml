@@ -41,6 +41,8 @@ spec:
               value: ${RedisOptions__DataProtectionKey}
             - name: RedisOptions__DefaultDatabase
               value: "${RedisOptions__DefaultDatabase}"
+            - name: ConnectionStrings__SurrealDB
+              value: ${ConnectionStrings__SurrealDB}
 ---
 
 apiVersion: v1
