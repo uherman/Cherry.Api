@@ -11,6 +11,27 @@ namespace Proxy.Extensions;
 public static class ClaimsPrincipalExtensions
 {
     /// <summary>
+    /// Tries to get the <see cref="UserId" /> from the <see cref="ClaimsPrincipal" />.
+    /// </summary>
+    /// <param name="principal">The <see cref="ClaimsPrincipal" /> to extract the user ID from.</param>
+    /// <param name="id">
+    /// When this method returns, contains the userId if found; otherwise, the default value of <see cref="UserId" />.
+    /// </param>
+    /// <returns><c>true</c> if the userId was found; otherwise, <c>false</c>.</returns>
+    public static bool TryGetId(this ClaimsPrincipal principal, out UserId id)
+    {
+        var idString = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        if (idString is null)
+        {
+            id = default;
+            return false;
+        }
+
+        id = idString;
+        return true;
+    }
+
+    /// <summary>
     /// Checks if the <see cref="ClaimsPrincipal" /> is in the specified role.
     /// </summary>
     /// <param name="principal">The <see cref="ClaimsPrincipal" /> to check.</param>
@@ -19,13 +40,7 @@ public static class ClaimsPrincipalExtensions
     /// <returns>A <see cref="RoleResult" /> indicating whether the user is in the role and the corresponding status code.</returns>
     public static async Task<RoleResult> IsInRole(this ClaimsPrincipal principal, Role role, UserService userService)
     {
-        if (principal.Identity?.IsAuthenticated is not true)
-        {
-            return new RoleResult(false, HttpStatusCode.Unauthorized);
-        }
-
-        var id = principal.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-        if (id is null)
+        if (principal.Identity?.IsAuthenticated is not true || !principal.TryGetId(out var id))
         {
             return new RoleResult(false, HttpStatusCode.Unauthorized);
         }

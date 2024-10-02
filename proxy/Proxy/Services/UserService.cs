@@ -8,7 +8,7 @@ namespace Proxy.Services;
 /// Service for managing users and their roles.
 /// </summary>
 /// <param name="client">The SurrealDB client used for database operations.</param>
-public class UserService(ISurrealDbClient client)
+public class UserService(ISurrealDbClient client, ILogger<UserService> logger)
 {
     /// <summary>
     /// Checks if a user is in a specific role.
@@ -26,6 +26,21 @@ public class UserService(ISurrealDbClient client)
     }
 
     /// <summary>
+    /// Retrieves a user by their unique identifier.
+    /// </summary>
+    /// <param name="id">The unique identifier of the user.</param>
+    /// <returns>
+    /// A task that represents the asynchronous operation. The task result contains the user if found; otherwise,
+    /// null.
+    /// </returns>
+    public async Task<User> GetUser(UserId id)
+    {
+        var record = await client.Select<UserRecord>((Thing)id);
+
+        return record is null ? null : new User(record.Id, record.Roles);
+    }
+
+    /// <summary>
     /// Saves a user to the database.
     /// </summary>
     /// <param name="user">The user to save.</param>
@@ -39,21 +54,7 @@ public class UserService(ISurrealDbClient client)
         };
 
         await client.Create(record);
-    }
-
-    /// <summary>
-    /// Retrieves a user by their unique identifier.
-    /// </summary>
-    /// <param name="id">The unique identifier of the user.</param>
-    /// <returns>
-    /// A task that represents the asynchronous operation. The task result contains the user if found; otherwise,
-    /// null.
-    /// </returns>
-    private async Task<User> GetUser(UserId id)
-    {
-        var record = await client.Select<UserRecord>((Thing)id);
-
-        return record is null ? null : new User(record.Id, record.Roles);
+        logger.LogInformation("Saved new user '{UserId}' with roles: [{Roles}]", user.Id, user.Roles);
     }
 }
 

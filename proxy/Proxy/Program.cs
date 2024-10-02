@@ -1,10 +1,10 @@
-using System.Security.Claims;
 using Auth0.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
 using Proxy;
+using Proxy.Extensions;
 using Proxy.Middleware;
 using Proxy.Models;
 using Proxy.Services;
@@ -35,16 +35,22 @@ app.MapReverseProxy();
 
 app.UseProtectedRoute("/api", Role.Admin, new RouteProtectionOptions { IncludeToken = true });
 
-app.MapGet("Account/Profile", (HttpContext context) =>
+app.MapGet("Account/Profile", async (HttpContext context, UserService userService) =>
 {
-    if (context.User.Identity?.IsAuthenticated is not true)
+    if (context.User.Identity?.IsAuthenticated is not true || !context.User.TryGetId(out var id))
     {
         return Results.Unauthorized();
     }
 
+    var user = await userService.GetUser(id);
+    if (user is null)
+    {
+        user = new User(id, [Role.User]);
+        await userService.SaveUser(user);
+    }
+
     return Results.Json(new
     {
-        Id = context.User.FindFirst(ClaimTypes.NameIdentifier)?.Value,
         context.User.Identity.Name,
         context.User.Identity?.IsAuthenticated
     });
